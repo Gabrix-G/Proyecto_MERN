@@ -1,64 +1,54 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
-
-const ClienteSchema = new Schema({
+import {Schema, model} from "mongoose";
+ 
+const clientsSchema = new Schema({
     name: {
         type: String,
-        required: [true, 'El nombre es obligatorio']
+        require: true,
+        maxLength: 100
     },
     lastName: {
         type: String,
-        required: [true, 'El apellido es obligatorio']
+        require: true,
+        maxLength: 100
     },
     birthday: {
         type: Date,
-        required: [true, 'La fecha de nacimiento es obligatoria']
+        require: true,
     },
     email: {
         type: String,
-        required: [true, 'El correo electrónico es obligatorio'],
+        required: true,
         unique: true,
-        lowercase: true,
-        trim: true,
-        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Por favor ingrese un correo electrónico válido']
+        match: [
+          /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+          "Por favor, ingrese un correo electrónico válido",
+        ]
     },
     password: {
         type: String,
-        required: [true, 'La contraseña es obligatoria'],
-        minlength: [6, 'La contraseña debe tener al menos 6 caracteres']
+        require: true,
+        minLength: 6
     },
     telephone: {
         type: String,
-        required: [true, 'El número de teléfono es obligatorio']
+      required: true,
+      match: [
+        /^[0-9]{8}$/,
+        "El teléfono debe contener exactamente 8 dígitos numéricos"
+      ]
     },
     dui: {
         type: String,
-        required: [true, 'El DUI es obligatorio'],
-        unique: true,
-        trim: true
+      default: null,
+      match: [/^[0-9]{8}-[0-9]{1}$/, "El formato del DUI debe ser 12345678-9"]
     },
     isVerified: {
         type: Boolean,
         default: false
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
     }
 }, {
-    timestamps: true, // Esto agrega automáticamente los campos createdAt y updatedAt
-    versionKey: false // Esto elimina el campo __v que Mongoose agrega por defecto
+    timestamps: true,
+    strict: false
 });
-
-// Método para personalizar la respuesta JSON (eliminar campos sensibles)
-ClienteSchema.methods.toJSON = function() {
-    const { __v, password, _id, ...cliente } = this.toObject();
-    cliente.uid = _id; // Renombrar _id a uid
-    return cliente;
-};
-
-module.exports = mongoose.model('Cliente', ClienteSchema);
+ 
+export default model ("clients", clientsSchema);
